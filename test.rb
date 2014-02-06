@@ -1,14 +1,17 @@
 require 'matrix'
 
-WIDTH = 600
-HEIGHT = 600
-NUM_BALLS = 10
+WIDTH = 600.0
+HEIGHT = 600.0
+NUM_BALLS = 40
+MAX_COMP_V = 10.0
 
 def new_ball x, y, vx, vy
   Ball.new x, y, vx, vy, WIDTH, HEIGHT
 end
 
 class Ball
+  @@max_v = Vector[MAX_COMP_V, MAX_COMP_V].magnitude
+
   def initialize(x, y, vx, vy, sketch_w, sketch_h)
     @pos = Vector[x, y]
     @vel = Vector[vx, vy]
@@ -33,9 +36,9 @@ class Ball
     push_matrix
     translate x_pos, y_pos
 
-    # color_mode HSB, 100, 100, 100, 100
-    # hue = map dx
-    # fill
+    color_mode HSB, 360, 1, 1, 1
+    hue = map(velocity, 0, @@max_v, 240, 360)
+    fill hue, 1, 1, 1
     ellipse 0, 0, 10, 10
 
     pop_matrix
@@ -66,6 +69,10 @@ class Ball
     def y_vel= vy
       @vel = Vector[x_vel, vy]
     end
+
+    def velocity
+      @vel.magnitude
+    end
 end
 
 def setup
@@ -73,7 +80,10 @@ def setup
 
   @balls = []
   NUM_BALLS.times do
-    @balls << new_ball(rand(width), rand(height), rand(20)-10, rand(20)-10)
+    @balls << new_ball( rand(width),
+                        rand(height),
+                        rand(MAX_COMP_V*2.0)-MAX_COMP_V,
+                        rand(MAX_COMP_V*2.0)-MAX_COMP_V )
   end
 end
 
