@@ -11,7 +11,7 @@ end
 class Ball
   def initialize(x, y, vx, vy, sketch_w, sketch_h)
     @pos = Vector[x, y]
-    @vx, @vy = vx, vy
+    @vel = Vector[vx, vy]
     @sketch_w, @sketch_h = sketch_w, sketch_h
   end
   
@@ -20,12 +20,12 @@ class Ball
   end
 
   def move
-    @pos += Vector[@vx, @vy]
+    @pos += Vector[x_vel, y_vel]
 
-    @vx = -@vx.abs if x_pos >= @sketch_w
-    @vx =  @vx.abs if x_pos <= 0
-    @vy = -@vy.abs if y_pos >= @sketch_h
-    @vy =  @vy.abs if y_pos <= 0
+    self.x_vel = -x_vel().abs if x_pos >= @sketch_w
+    self.x_vel =  x_vel().abs if x_pos <= 0
+    self.y_vel = -y_vel().abs if y_pos >= @sketch_h
+    self.y_vel =  y_vel().abs if y_pos <= 0
   end
 
   def display
@@ -49,6 +49,22 @@ class Ball
 
     def y_pos
       @pos[1]
+    end
+
+    def x_vel
+      @vel[0]
+    end
+
+    def x_vel= vx
+      @vel = Vector[vx, y_vel]
+    end
+
+    def y_vel
+      @vel[1]
+    end
+
+    def y_vel= vy
+      @vel = Vector[x_vel, vy]
     end
 end
 
