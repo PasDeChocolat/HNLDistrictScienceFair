@@ -54,11 +54,10 @@ def draw
   if (mouse_pressed)
     @box.setLocation(mouse_x,mouse_y)
   else
-    # @box.setLocation(x,y);
+    @box.setLocation(x,y);
   end
 
   # Look at all particles
-  # for (int i = particles.size()-1; i >= 0; i--) {
   (0..(@particles.size-1)).to_a.reverse.each do |i|
     p = @particles[i]
     p.display()
