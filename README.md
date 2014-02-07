@@ -1,5 +1,4 @@
-# A thing for the science fair.
-
+# A demo for the Honolulu District Science Fair.
 
 ### Includes
 * Mouse-interactive bouncy-ball simulation
