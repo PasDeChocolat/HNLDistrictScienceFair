@@ -1,0 +1,4 @@
+
+  IotasticConfig = {}
+  IotasticConfig[:client_key]   = YOUR_CLIENT_KEY
+  IotasticConfig[:access_token] = YOUR_ACCESS_TOKEN
