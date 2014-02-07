@@ -4,6 +4,7 @@ WIDTH = 600.0
 HEIGHT = 600.0
 NUM_BALLS = 40
 MAX_COMP_V = 10.0
+BALL_D = 20.0
 
 def new_ball x, y, vx, vy
   Ball.new x, y, vx, vy, WIDTH, HEIGHT
@@ -39,7 +40,7 @@ class Ball
     color_mode HSB, 360, 1, 1, 1
     hue = map(velocity, 0, @@max_v, 240, 360)
     fill hue, 1, 1, 1
-    ellipse 0, 0, 10, 10
+    ellipse 0, 0, BALL_D, BALL_D
 
     pop_matrix
     pop_style
