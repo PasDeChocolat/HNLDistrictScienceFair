@@ -113,9 +113,9 @@ def setup_box2d
   @box2d.createWorld()
 
   # Make the box
-  # @boxes = []
+  @boxes = []
   # 3.times do
-  #   @boxes << Box.new(rand(width),rand(height), @box2d)
+    @boxes << Box.new(rand(width),rand(height), @box2d)
   # end
   @xoff = 0.0
   @yoff = 1000.0
@@ -134,7 +134,6 @@ def display_box2d
   y_offset = 200
   # spread = map(mouse_x, 0, width, 0, 2*width)
   spread = width - 250
-  puts "spread: #{spread}"
 
   if (rand(100) < 90)
     5.times do
@@ -212,8 +211,15 @@ def display_ball_for_user(user_id)
   push_matrix
   stroke 120
   fill 0, 255, 255
-  translate head_pos.x, head_pos.y-r, head_pos.z
-  sphere r
+  # translate head_pos.x, head_pos.y-r, head_pos.z
+  # sphere r
+  box = @boxes[user_id-1]
+  if box
+    puts "display box!!! #{user_id}"
+    box.setLocation(head_pos.x, head_pos.y)
+    box.display
+  end
+
   pop_matrix
   pop_style
 end
@@ -387,6 +393,107 @@ class Particle
     body.createFixture(fd)
 
     body.setAngularVelocity(rand(20) - 10)
+    return body
+  end
+end
+
+class Box
+  include_package 'org.jbox2d.dynamics'
+  include_package 'org.jbox2d.common'
+  include_package 'org.jbox2d.collision.shapes'
+  # We need to keep track of a Body and a width and height
+  # Body body;
+  # float w;
+  # float h;
+  
+  # boolean dragged = false;
+
+  # Constructor
+  def initialize x_, y_, box2d_
+    @box2d = box2d_
+    @dragged = false
+    @w = 50.0
+    @h = 50.0
+    x, y = x_.to_f, y_.to_f
+    # Add the box to the box2d world
+    @body = makeBody(Vec2.new(x,y),@w,@h)
+    @body.setUserData(self)
+  end
+
+  # This function removes the particle from the box2d world
+  def killBody()
+    @box2d.destroyBody(@body);
+  end
+
+  def contains(x, y)
+    x, y = x.to_f, y.to_f
+    worldPoint = @box2d.coordPixelsToWorld(x, y)
+    f = @body.getFixtureList()
+    return f.testPoint(worldPoint)
+  end
+  
+  def setAngularVelocity(a)
+    a = a.to_f
+    @body.setAngularVelocity(a)
+  end
+  def setVelocity(v)
+    @body.setLinearVelocity(v)
+  end
+  
+  def setLocation(x, y)
+    x, y = x.to_f, y.to_f
+    pos = @body.getWorldCenter()
+    target = @box2d.coordPixelsToWorld(x,y)
+    diff = Vec2.new(target.x-pos.x,target.y-pos.y)
+    diff.mulLocal(50)
+    setVelocity(diff)
+    setAngularVelocity(0)
+  end
+
+  # Drawing the box
+  def display()
+    # We look at each body and get its screen position
+    pos = @box2d.getBodyPixelCoord(@body)
+    # Get its angle of rotation
+    a = @body.getAngle()
+
+    rect_mode(PConstants::CENTER)
+    push_matrix
+    translate(pos.x,pos.y);
+    rotate(a);
+    fill(175)
+    stroke(0)
+    rect(0,0,@w,@h)
+    pop_matrix
+  end
+
+
+  # This function adds the rectangle to the box2d world
+  def makeBody(center, w_, h_)
+    w_, h_ = w_.to_f, h_.to_f
+
+    # Define and create the body
+    bd = BodyDef.new();
+    bd.type = BodyType::KINEMATIC
+    bd.position.set(@box2d.coordPixelsToWorld(center))
+    bd.fixedRotation = true
+    body = @box2d.createBody(bd)
+
+    # Define a polygon (this is what we use for a rectangle)
+    ps = PolygonShape.new()
+    box2dW = @box2d.scalarPixelsToWorld(w_/2.0)
+    box2dH = @box2d.scalarPixelsToWorld(h_/2.0)
+    ps.setAsBox(box2dW, box2dH)
+
+    # Define a fixture
+    fd = FixtureDef.new()
+    fd.shape = ps
+    # Parameters that affect physics
+    fd.density = 1.0
+    fd.friction = 0.3
+    fd.restitution = 0.5
+
+    body.createFixture(fd)
     return body
   end
 end
