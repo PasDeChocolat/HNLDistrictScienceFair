@@ -230,10 +230,19 @@ def display_ball_for_user(user_id)
   x = map(head_pos.x, -1200, 1200, -200, 200)
   y = map(head_pos.y, -1200, 1200, -200, 200)
 
-  hand_dist = map(r*2.0, 0, width, 10, 150)
+  low_hand_dist = 10
+  high_hand_dist = 150
+  hand_dist = map(r*2.0, 0, width, low_hand_dist, high_hand_dist)
   box_width = lerp(previous_width, hand_dist, 0.1)
   world = @box2d
+
+  # change gravity with box width
+  g = 9.8
+  acc = map(box_width, low_hand_dist, high_hand_dist, -4.0*g, 10.0*g)
+  @box2d.setGravity(0, acc)
+
   decimals = 0
+  @code_lines << "gravity: #{(acc/9.8).round(1)} G"
   @code_lines << "x: #{x.round(decimals)}"
   @code_lines << "y: #{y.round(decimals)}"
   @code_lines << "width: #{box_width.round(decimals)}"
