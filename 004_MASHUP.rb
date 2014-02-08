@@ -114,7 +114,7 @@ def setup_box2d
 
   # Make the box
   @boxes = []
-  @boxes << Box.new(0,0, 50.0, @box2d)
+  # @boxes << Box.new(0,0, 50.0, @box2d)
 
   @xoff = 0.0
   @yoff = 1000.0
