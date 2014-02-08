@@ -36,7 +36,7 @@ def draw
   @context.update()
 
   background 0
-  display_code "hello"
+  # display_code "hello"
 
   # set the scene pos
   translate(width/2, height/2, 0);
@@ -84,6 +84,8 @@ def draw
   userList.each do |u|
     display_ball_for_user(u)
   end
+  before_rotation = false
+  display_code "hello", before_rotation
 end
 
 def display_code code, before_rotation=true
@@ -92,12 +94,16 @@ def display_code code, before_rotation=true
 
   fill(0,255,0)
   # z = map(mouse_x, 0, width, -3000, 3000)
-  # if before_rotation
+  if before_rotation
+    textSize(60)
     z = -100 # before scene rotation
-  # else
-  #   z = -164 # after scene rotation
-  # end
-  textSize(60)
+  else
+    textSize(20)
+    z = -164 # after scene rotation
+
+    rotate_x(-@rotX)
+    translate(-width/3.0, -height/3.0, 0);
+  end
   text(code, 0, 0, z)
 
   pop_matrix
