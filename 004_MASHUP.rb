@@ -114,9 +114,8 @@ def setup_box2d
 
   # Make the box
   @boxes = []
-  # 3.times do
-    @boxes << Box.new(rand(width),rand(height), @box2d)
-  # end
+  @boxes << Box.new(0,0, 50.0, @box2d)
+
   @xoff = 0.0
   @yoff = 1000.0
 
@@ -213,12 +212,29 @@ def display_ball_for_user(user_id)
   fill 0, 255, 255
   # translate head_pos.x, head_pos.y-r, head_pos.z
   # sphere r
-  box = @boxes[user_id-1]
+  box_index = user_id-1
+  box = @boxes[box_index]
+  push_matrix
+  previous_width = 20
   if box
-    puts "display box!!! #{user_id}"
-    box.setLocation(head_pos.x, head_pos.y)
-    box.display
+    previous_width = box.w
+    box.killBody
   end
+
+  # move box
+  x = map(head_pos.x, -1200, 1200, -100, 100)
+  y = map(head_pos.y, -1200, 1200, -100, 100)
+
+  hand_dist = map(r*2.0, 0, width, 20, 100)
+  box_w = lerp(previous_width, hand_dist, 0.1)
+  box = Box.new(x, y, box_w, @box2d)
+  if box_index < @boxes.size
+    @boxes[box_index] = box
+  else
+    @boxes << box
+  end
+  box.display
+  pop_matrix
 
   pop_matrix
   pop_style
@@ -401,6 +417,8 @@ class Box
   include_package 'org.jbox2d.dynamics'
   include_package 'org.jbox2d.common'
   include_package 'org.jbox2d.collision.shapes'
+
+  attr_reader :w, :h
   # We need to keep track of a Body and a width and height
   # Body body;
   # float w;
@@ -409,11 +427,11 @@ class Box
   # boolean dragged = false;
 
   # Constructor
-  def initialize x_, y_, box2d_
+  def initialize x_, y_, w_, box2d_
     @box2d = box2d_
     @dragged = false
-    @w = 50.0
-    @h = 50.0
+    @w = w_
+    @h = w_
     x, y = x_.to_f, y_.to_f
     # Add the box to the box2d world
     @body = makeBody(Vec2.new(x,y),@w,@h)
@@ -459,8 +477,8 @@ class Box
 
     rect_mode(PConstants::CENTER)
     push_matrix
-    translate(pos.x,pos.y);
-    rotate(a);
+    translate(pos.x,pos.y)
+    rotate(a)
     fill(175)
     stroke(0)
     rect(0,0,@w,@h)
@@ -473,7 +491,7 @@ class Box
     w_, h_ = w_.to_f, h_.to_f
 
     # Define and create the body
-    bd = BodyDef.new();
+    bd = BodyDef.new()
     bd.type = BodyType::KINEMATIC
     bd.position.set(@box2d.coordPixelsToWorld(center))
     bd.fixedRotation = true
