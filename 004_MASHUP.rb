@@ -16,6 +16,8 @@ def setup
   size 1024,768,P3D
   background 0
 
+  @code_lines = []
+
   setup_kinect
   setup_box2d
 
@@ -71,7 +73,7 @@ def draw
     end
   end
 
-  @context.drawCamFrustum()
+  # @context.drawCamFrustum()
 
   userList.each do |u|
     display_ball_for_user(u)
@@ -80,7 +82,7 @@ def draw
   display_box2d
 
   before_rotation = false
-  display_code "hello", before_rotation
+  display_code before_rotation
 end
 
 def setup_kinect
@@ -175,7 +177,7 @@ def display_box2d
   # end
 end
 
-def display_code code, before_rotation=true
+def display_code before_rotation=true
   push_style
   push_matrix
 
@@ -185,13 +187,16 @@ def display_code code, before_rotation=true
     textSize(60)
     z = -100 # before scene rotation
   else
-    textSize(20)
+    textSize(35)
     z = -164 # after scene rotation
 
     rotate_x(-@rotX)
     translate(-width/3.0, -height/3.0, 0);
   end
-  text(code, 0, 0, z)
+  @code_lines.each_with_index do |code_line, code_idx|
+    text(code_line, 0, code_idx*40.0, z)
+  end
+  @code_lines = []
 
   pop_matrix
   pop_style
@@ -222,12 +227,20 @@ def display_ball_for_user(user_id)
   end
 
   # move box
-  x = map(head_pos.x, -1200, 1200, -100, 100)
-  y = map(head_pos.y, -1200, 1200, -100, 100)
+  x = map(head_pos.x, -1200, 1200, -200, 200)
+  y = map(head_pos.y, -1200, 1200, -200, 200)
 
-  hand_dist = map(r*2.0, 0, width, 20, 100)
-  box_w = lerp(previous_width, hand_dist, 0.1)
-  box = Box.new(x, y, box_w, @box2d)
+  hand_dist = map(r*2.0, 0, width, 10, 150)
+  box_width = lerp(previous_width, hand_dist, 0.1)
+  world = @box2d
+  decimals = 0
+  @code_lines << "x: #{x.round(decimals)}"
+  @code_lines << "y: #{y.round(decimals)}"
+  @code_lines << "width: #{box_width.round(decimals)}"
+  code_line = "Box.new(#{x.round(decimals)}, #{y.round(decimals)}, #{box_width.round(decimals)}, world)"
+  @code_lines << code_line
+  @code_lines << ""
+  box = eval(code_line)
   if box_index < @boxes.size
     @boxes[box_index] = box
   else
@@ -477,11 +490,14 @@ class Box
 
     rect_mode(PConstants::CENTER)
     push_matrix
+    push_style
     translate(pos.x,pos.y)
     rotate(a)
-    fill(175)
-    stroke(0)
+    fill(200)
+    stroke_width(1)
+    stroke(0, 255, 0)
     rect(0,0,@w,@h)
+    pop_style
     pop_matrix
   end
 
